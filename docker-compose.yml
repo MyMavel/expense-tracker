@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: expense
+      POSTGRES_DB: expense
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?ต้องตั้ง POSTGRES_PASSWORD ในไฟล์ .env}
+      TZ: Asia/Bangkok
+    volumes:
+      - pgdata:/var/lib/postgresql/data   # ข้อมูลอยู่ถาวร แม้ลบ/สร้าง container ใหม่
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U expense -d expense"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://expense:${POSTGRES_PASSWORD}@db:5432/expense
+      APP_PASSWORD: ${APP_PASSWORD:?ต้องตั้ง APP_PASSWORD ในไฟล์ .env}
+      SESSION_SECRET: ${SESSION_SECRET:?ต้องตั้ง SESSION_SECRET ในไฟล์ .env}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    ports:
+      - "127.0.0.1:3000:3000"   # เปิดให้เฉพาะ Nginx ในเครื่องเข้าถึง ไม่เปิดออกอินเทอร์เน็ตตรง ๆ
+
+volumes:
+  pgdata:
