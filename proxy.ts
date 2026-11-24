@@ -1,10 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isValidSession, SESSION_COOKIE } from "@/lib/auth";
 
-// ด่านตรวจก่อนเข้าทุกหน้า: ถ้ายังไม่ล็อกอินให้ไปหน้า /login
+// ด่านตรวจก่อนเข้าทุกหน้า: ถ้ายังไม่ล็อกอินให้ไปหน้า /login (ยกเว้นหน้าแรก "/" ที่เปิดให้ทุกคนเห็น)
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  if (pathname === "/login" || pathname === "/api/login" || pathname === "/api/health") {
+  if (pathname === "/" || pathname === "/login" || pathname === "/api/login" || pathname === "/api/health") {
     return NextResponse.next();
   }
 

@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import Nav from "@/components/Nav";
+import { isValidSession, SESSION_COOKIE } from "@/lib/auth";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "บันทึกรายจ่าย",
-  description: "แอปบันทึกรายจ่ายประจำวัน",
+  title: "ระบบงาน",
+  description: "Dashboard ระบบงาน",
 };
 
 export const viewport: Viewport = {
@@ -13,7 +15,8 @@ export const viewport: Viewport = {
   themeColor: "#1f3a5f",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const authed = isValidSession((await cookies()).get(SESSION_COOKIE)?.value);
   return (
     <html lang="th">
       <head>
@@ -25,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <Nav />
+        <Nav authed={authed} />
         <main className="container">{children}</main>
       </body>
     </html>
